@@ -243,6 +243,39 @@
     el.meAvatar.style.background = myColor;
   }
 
+  /* ---------------- 功能扩展接口 ---------------- */
+
+  /**
+   * 轻量事件总线：后续新增功能（五子棋等）通过 window.ChatDrop 接入，
+   * 不需要改动聊天主流程。
+   */
+  const featureListeners = new Map();
+
+  function onFeatureEvent(type, fn) {
+    if (!featureListeners.has(type)) featureListeners.set(type, []);
+    featureListeners.get(type).push(fn);
+  }
+
+  function emitFeatureEvent(type, data) {
+    const list = featureListeners.get(type);
+    if (!list) return;
+    for (const fn of list) {
+      try { fn(data); } catch (err) { console.error('[feature]', err); }
+    }
+  }
+
+  window.ChatDrop = {
+    getSid: () => sid,
+    getName: () => myName,
+    getColor: () => myColor,
+    getDevices: () => devices.slice(),
+    senderHeader,
+    toast,
+    escapeHtml,
+    setActiveNav,
+    on: onFeatureEvent,
+  };
+
   /* ---------------- 消息渲染 ---------------- */
   const seen = new Set();          // 已渲染的 id
   let lastDay = null;              // 日期分隔
@@ -838,6 +871,9 @@
       let payload;
       try { payload = JSON.parse(ev.data); } catch { return; }
 
+      // 转发给扩展功能（五子棋等）
+      emitFeatureEvent(payload.type, payload.data !== undefined ? payload.data : payload);
+
       if (payload.type === 'hello') {
         setStatus('online', '已连接');
         if (payload.devices) setDevices(payload.devices);
@@ -874,10 +910,63 @@
     });
   }
 
+  /* ---------------- 侧边栏 / 视图切换 ---------------- */
+
+  const sidebarEl = $('sidebar');
+  const sidebarBackdropEl = $('sidebarBackdrop');
+  const btnSidebarEl = $('btnSidebar');
+  const btnSidebarCloseEl = $('btnSidebarClose');
+
+  function openSidebar() {
+    if (!sidebarEl) return;
+    sidebarEl.classList.add('open');
+    if (sidebarBackdropEl) sidebarBackdropEl.hidden = false;
+  }
+
+  function closeSidebar() {
+    if (!sidebarEl) return;
+    sidebarEl.classList.remove('open');
+    if (sidebarBackdropEl) sidebarBackdropEl.hidden = true;
+  }
+
+  function setActiveNav(name) {
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.view === name);
+    });
+  }
+
+  /**
+   * 聊天永远在右侧；「五子棋」只是展开 / 收起左侧游戏面板，
+   * 不再整页切换视图。
+   */
+  function switchView(name) {
+    closeSidebar();
+    const gm = window.ChatDropGomoku;
+    if (name === 'gomoku') {
+      if (gm) gm.openPane();
+      else setActiveNav('gomoku');
+    } else {
+      if (gm) gm.collapsePane();
+      else setActiveNav('chat');
+      if (nearBottom()) scrollToBottom();
+    }
+  }
+
+  if (btnSidebarEl) btnSidebarEl.addEventListener('click', openSidebar);
+  if (btnSidebarCloseEl) btnSidebarCloseEl.addEventListener('click', closeSidebar);
+  if (sidebarBackdropEl) sidebarBackdropEl.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach((btn) => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 820) closeSidebar();
+  });
+
   /* ---------------- 启动 ---------------- */
   syncMeUI();
   syncRecipientUI();
   updateSendState();
+  if (window.ChatDropGomoku) window.ChatDropGomoku.init(window.ChatDrop);
   loadHistory().then(connect);
 
   /* ---------------- 扫码配对 ---------------- */
