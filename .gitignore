@@ -1,0 +1,21 @@
+# 运行时数据（含证书私钥、聊天记录、上传/分片文件）
+data/
+
+# 依赖（本项目零第三方依赖，留作兜底）
+node_modules/
+
+# 编辑器 / 系统
+.workbuddy/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# 本地日志与临时文件
+*.log
+*.tmp
+_batlog.txt
+_chatdrop_silent.vbs
+
+# 调试截图产物
+_shots/

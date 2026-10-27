@@ -1,0 +1,14 @@
+# .bat 必须原样保存（-text 禁止任何换行转换），否则 cmd.exe 无法解析
+*.bat -text
+*.cmd -text
+
+# 其余文本统一用 LF 存储
+*.js   text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+
+*.png binary
+*.jpg binary
+*.pem binary

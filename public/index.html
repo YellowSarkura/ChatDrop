@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1e3a5f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ChatDrop">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="stylesheet" href="/style.css">
+<title>ChatDrop · 局域网互传</title>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ 顶栏 ============ -->
+  <header class="topbar">
+    <div class="topbar-main">
+      <div class="brand">
+        <img src="/mascot-96.png" alt="ChatDrop" class="brand-logo">
+        <span class="brand-name">ChatDrop</span>
+      </div>
+      <button class="status" id="status" title="查看在线设备">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">连接中…</span>
+      </button>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="btnMe" title="修改我的昵称">
+        <span class="me-avatar" id="meAvatar">我</span>
+      </button>
+      <button class="icon-btn" id="btnMore" title="更多">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ 消息区 ============ -->
+  <main class="messages" id="messages">
+    <div class="empty-state" id="emptyState">
+      <img src="/icon-192.png" alt="" class="empty-mascot">
+      <h2 id="emptyTitle">说点什么，或者发个文件</h2>
+      <p id="emptyDesc">选文件、发图片、打字都可以。同一 WiFi 下的设备会实时同步。</p>
+    </div>
+  </main>
+
+  <!-- ============ 拖拽遮罩 ============ -->
+  <div class="dropzone" id="dropzone">
+    <div class="dropzone-inner">
+      <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <strong>松手即发送</strong>
+      <span>支持多文件、图片、任意类型</span>
+    </div>
+  </div>
+
+  <!-- ============ 多任务上传面板 ============ -->
+  <div class="upload-panel" id="uploadPanel" hidden>
+    <div class="upload-head" id="uploadHead">
+      <span class="upload-title">
+        <svg viewBox="0 0 24 24" class="up-ico"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        传输队列
+      </span>
+      <span class="upload-count" id="uploadCount">空闲</span>
+      <span class="upload-tools">
+        <button class="link-btn" id="btnClearDone" hidden>清除已完成</button>
+        <button class="link-btn" id="btnUploadToggle">收起</button>
+      </span>
+    </div>
+    <div class="upload-list" id="uploadList"></div>
+  </div>
+
+  <!-- ============ 输入区 ============ -->
+  <footer class="composer">
+    <!-- 收件人栏 -->
+    <div class="recipient-bar">
+      <button class="recipient-chip" id="recipientBtn" title="选择接收设备">
+        <svg viewBox="0 0 24 24" class="rc-icon"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20c0-3.6 3.4-5.6 7.5-5.6s7.5 2 7.5 5.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span id="recipientLabel">发送给所有人</span>
+        <svg viewBox="0 0 24 24" class="rc-caret"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="online-count" id="onlineCount"></span>
+    </div>
+
+    <div class="composer-inner">
+      <button class="icon-btn attach" id="btnPickFile" title="选择文件">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <textarea id="input" rows="1" placeholder="说点什么，或把文件拖进来…" enterkeyhint="send"></textarea>
+      <button class="send-btn" id="btnSend" title="发送" disabled>
+        <svg viewBox="0 0 24 24"><path d="M4 12 20 4l-4 16-5-6-7-2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <input type="file" id="fileInput" multiple hidden>
+    <input type="file" id="imageInput" accept="image/*" multiple hidden>
+  </footer>
+
+</div>
+
+<!-- ============ 选择接收设备 ============ -->
+<div class="sheet-backdrop" id="recipientBackdrop" hidden>
+  <div class="sheet" id="recipientSheet">
+    <div class="sheet-title">发送给谁</div>
+    <div class="device-list" id="deviceList"></div>
+    <button class="sheet-item sheet-cancel" id="btnRecipientCancel">取消</button>
+  </div>
+</div>
+
+<!-- ============ 更多菜单 ============ -->
+<div class="sheet-backdrop" id="sheetBackdrop" hidden>
+  <div class="sheet" id="sheet">
+    <div class="sheet-title">更多</div>
+    <button class="sheet-item" id="btnReload">
+      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      刷新消息
+    </button>
+    <button class="sheet-item" id="btnClear">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      清空全部消息
+    </button>
+    <button class="sheet-item" id="btnInfo">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      连接信息
+    </button>
+    <button class="sheet-item" id="btnShowPair">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M14 14h3v3h-3zM19 19h2v2h-2z" fill="currentColor"/></svg>
+      扫码配对
+    </button>
+    <button class="sheet-item sheet-cancel" id="btnSheetCancel">取消</button>
+  </div>
+</div>
+
+<!-- ============ 扫码配对 ============ -->
+<div class="sheet-backdrop" id="pairBackdrop" hidden>
+  <div class="sheet pair-sheet">
+    <div class="sheet-title">扫码配对</div>
+
+    <div class="pair-pane">
+      <div class="qr-wrap">
+        <div id="qrHolder"></div>
+        <div class="qr-loading" id="qrLoading">生成中…</div>
+      </div>
+      <p class="pair-hint">
+        用手机<strong>相机</strong>扫这个码，打开后即可直接给我发文件。<br>
+        <span class="pair-hint-sub">不需要装 App，也不用输入 IP</span>
+      </p>
+      <div class="pair-link-row">
+        <input type="text" id="pairLinkInput" readonly>
+        <button class="link-btn" id="btnCopyPairLink">复制</button>
+        <button class="link-btn" id="btnRefreshQr" title="重新生成二维码">刷新</button>
+      </div>
+      <div class="pair-net" id="pairNet"></div>
+    </div>
+
+    <button class="sheet-item sheet-cancel" id="btnPairCancel">关闭</button>
+  </div>
+</div>
+
+<!-- ============ 图片灯箱 ============ -->
+<div class="lightbox" id="lightbox" hidden>
+  <img id="lightboxImg" alt="">
+  <button class="lightbox-close" id="lightboxClose" aria-label="关闭">×</button>
+</div>
+
+<!-- ============ 昵称编辑 ============ -->
+<div class="sheet-backdrop" id="meBackdrop" hidden>
+  <div class="sheet">
+    <div class="sheet-title">我的昵称</div>
+    <input type="text" id="meNameInput" maxlength="20" placeholder="给自己起个名字">
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="meCancel">取消</button>
+      <button class="btn-primary" id="meSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 轻提示 ============ -->
+<div class="toast" id="toast" hidden></div>
+
+<script src="/vendor/qrcode-svg.min.js"></script>
+<script src="/pair.js"></script>
+<script src="/uploader.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
+
