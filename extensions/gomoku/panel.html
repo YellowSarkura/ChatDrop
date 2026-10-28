@@ -1,0 +1,119 @@
+<!-- 五子棋面板片段：由 gomoku/client.js 注入到 .main-pane 的最前面（左侧） -->
+<section class="game-pane" id="gamePane" hidden>
+
+  <div class="gomoku-top">
+    <div class="gomoku-heading">
+      <h2>五子棋</h2>
+      <span class="gomoku-badge" id="gomokuModeBadge" hidden></span>
+      <button class="pane-collapse" id="btnGameCollapse" type="button" title="收起游戏窗口">
+        收起
+        <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="gomoku-status" id="gomokuStatus">同一时间只能进行一场对局</div>
+  </div>
+
+  <div class="gomoku-scroll">
+
+    <!-- 发起对局 -->
+    <div class="gomoku-lobby" id="gomokuLobby">
+      <div class="lobby-section">
+        <div class="lobby-label">对局模式</div>
+        <div class="mode-picker" id="gomokuModePicker">
+          <button class="mode-btn active" data-mode="1v1" type="button">
+            <b>1v1</b><span>两人轮流落子</span>
+          </button>
+          <button class="mode-btn" data-mode="NvN" type="button">
+            <b>多v多</b><span>选阵营加入</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="lobby-section" id="gomokuOpponentWrap">
+        <div class="lobby-label">选择对手 <span id="gomokuOpponentHint">选择 1 位对手</span></div>
+        <div class="gomoku-opponents" id="gomokuOpponents"></div>
+      </div>
+
+      <div class="lobby-rule">1v1 无保护期；多人模式每次落子后有 <b>3 秒</b> 保护期。多v多有 <b>30 秒</b>准备时间，双方各至少 1 人后开赛。</div>
+      <button class="btn-primary gomoku-start" id="btnGomokuStart" type="button">发起对局</button>
+      <p class="lobby-note">发起后，其他设备可在左侧棋盘直接观战；多v多可点选阵营加入。</p>
+    </div>
+
+    <!-- 对局中 / 准备期 -->
+    <div class="gomoku-game" id="gomokuGame" hidden>
+
+      <div class="gomoku-prep" id="gomokuPrep" hidden>
+        <div class="prep-head">
+          <span class="prep-title">准备阶段 · 选择阵营</span>
+          <span class="prep-clock" id="gomokuPrepClock"></span>
+        </div>
+        <div class="prep-sides">
+          <button class="prep-side" id="btnJoinBlack" data-side="black" type="button">
+            <span class="gp-stone black"></span>
+            <span class="prep-side-body">
+              <span class="prep-side-name">黑棋 <span id="prepBlackCount">0 人</span></span>
+              <span class="prep-side-list" id="prepBlackList">等待加入</span>
+            </span>
+            <span class="prep-check" id="prepBlackCheck"></span>
+          </button>
+          <button class="prep-side" id="btnJoinWhite" data-side="white" type="button">
+            <span class="gp-stone white"></span>
+            <span class="prep-side-body">
+              <span class="prep-side-name">白棋 <span id="prepWhiteCount">0 人</span></span>
+              <span class="prep-side-list" id="prepWhiteList">等待加入</span>
+            </span>
+            <span class="prep-check" id="prepWhiteCheck"></span>
+          </button>
+        </div>
+        <div class="prep-foot">
+          <span class="prep-hint" id="gomokuPrepHint">双方各至少 1 人即可开始</span>
+          <button class="btn-primary prep-start" id="btnGomokuPrepStart" type="button" hidden>开始对局</button>
+        </div>
+      </div>
+
+      <div class="gomoku-players" id="gomokuPlayers"></div>
+      <div class="board-wrap">
+        <div class="board-surface">
+          <canvas id="gomokuBoard"></canvas>
+        </div>
+        <div class="gomoku-result" id="gomokuResult" hidden>
+          <div class="result-card">
+            <div class="result-title" id="gomokuResultTitle"></div>
+            <div class="result-sub" id="gomokuResultSub"></div>
+            <button class="btn-primary" id="btnGomokuNew" type="button">发起新对局</button>
+          </div>
+        </div>
+      </div>
+      <div class="gomoku-turnbar">
+        <span id="gomokuTurn">—</span>
+        <span class="gomoku-cooldown" id="gomokuCooldown"></span>
+      </div>
+      <div class="gomoku-opacity">
+        <label class="gomoku-opacity-label" for="gomokuOpacity">棋盘透明度</label>
+        <input class="gomoku-opacity-range" id="gomokuOpacity" type="range" min="0" max="80" step="5" value="0" />
+        <span class="gomoku-opacity-value" id="gomokuOpacityValue">0%</span>
+      </div>
+
+      <div class="gomoku-undo" id="gomokuUndoPanel" hidden>
+        <span id="gomokuUndoText"></span>
+        <span class="undo-actions">
+          <button class="link-btn" id="btnUndoAgree" type="button" hidden>同意</button>
+          <button class="link-btn" id="btnUndoReject" type="button" hidden>拒绝</button>
+          <button class="link-btn" id="btnUndoCancel" type="button" hidden>取消请求</button>
+        </span>
+      </div>
+
+      <div class="gomoku-actions">
+        <button class="btn-ghost" id="btnGomokuUndo" type="button" hidden>悔棋</button>
+        <button class="btn-ghost" id="btnGomokuEnd" type="button" hidden>结束对局</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 收起后的悬浮观战入口：fixed 定位，必须挂在 body 下，避免随面板一起隐藏 -->
+<button class="gomoku-float" id="gomokuFloat" type="button" hidden>
+  <span class="gf-dot"></span>
+  <span id="gomokuFloatText">五子棋对局进行中 · 观战</span>
+</button>

@@ -1,0 +1,34 @@
+<!-- 技术问答面板片段：由 /qa/client.js 注入到 .main-pane 的最前面（左侧） -->
+<section class="qa-pane" id="qaPane" hidden>
+
+  <div class="qa-top">
+    <div class="qa-heading">
+      <h2>技术问答</h2>
+      <span class="qa-total" id="qaTotal"></span>
+      <button class="qa-refresh" id="btnQaRefresh" type="button" title="刷新问题列表">刷新</button>
+      <button class="qa-collapse" id="btnQaCollapse" type="button" title="收起问答窗口">
+        收起
+        <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="qa-status" id="qaStatus">任何人都可以提问和回答</div>
+  </div>
+
+  <div class="qa-scroll">
+
+    <!-- 提问 -->
+    <div class="qa-ask">
+      <textarea class="qa-question-input" id="qaQuestionInput" maxlength="2000"
+                placeholder="描述你的技术问题…（Ctrl+Enter 发布）"></textarea>
+      <div class="qa-ask-foot">
+        <span class="qa-hint">问题与回答都不记录发布者</span>
+        <button class="btn-primary qa-ask-btn" id="btnQaAsk" type="button">发布问题</button>
+      </div>
+    </div>
+
+    <!-- 问题列表，回答在问题下方展开、每页 10 条 -->
+    <div class="qa-list" id="qaQuestions"></div>
+    <div class="qa-empty" id="qaEmpty" hidden>还没有问题，来提第一个吧</div>
+
+  </div>
+</section>

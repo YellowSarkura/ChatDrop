@@ -2,9 +2,9 @@
 
 /* ==================================================================
    五子棋
-   - 1v1 / 1v多 / 多v多（19 路棋盘）
+   - 1v1 / 多v多（19 路棋盘）
    - 同一时间只允许一场对局
-   - 1v1 无保护期；1v多 / 多v多 每次落子后 3 秒保护期（服务端计时，前端倒计时展示）
+   - 1v1 无保护期； 多v多 每次落子后 3 秒保护期（服务端计时，前端倒计时展示）
    - 多v多有 30 秒准备期，玩家自行选择黑/白阵营加入，只能操作自己一方
    - 悔棋：1v1 需对手同意；多人模式需对方半数以上成员同意
    - 棋盘透明度可在界面调节
@@ -17,7 +17,7 @@
 
 (() => {
   const BOARD_N = 19;
-  const MODE_LABEL = { '1v1': '1v1', '1vN': '1v多', 'NvN': '多v多' };
+  const MODE_LABEL = { '1v1': '1v1', 'NvN': '多v多' };
 
   let core = null;
   let game = null;
@@ -27,6 +27,7 @@
   let busy = false;
   let active = false;
   let paneCollapsed = true;
+  let pendingOpen = false;  // 模板未就绪时点过「五子棋」，就绪后补展开
   let lastGameId = null;
   let serverOffset = 0;   // 服务端与本地时钟的偏差
   let hover = null;
@@ -60,9 +61,35 @@
 
   /* ---------------- 初始化 ---------------- */
 
-  function init(api) {
+  /** 启动：先注入面板模板，再绑定事件 */
+  async function init(api) {
     core = api;
+    try {
+      await loadPanel();
+    } catch {
+      return;
+    }
+    setup();
+  }
 
+  /** 拉取 gomoku/panel.html：对局面板插入 .main-pane 左侧，悬浮入口挂到 body */
+  async function loadPanel() {
+    const res = await fetch('/gomoku/panel.html', { cache: 'no-store' });
+    if (!res.ok) throw new Error('面板加载失败');
+
+    const tpl = document.createElement('template');
+    tpl.innerHTML = (await res.text()).trim();
+
+    const pane = tpl.content.querySelector('#gamePane');
+    const host = document.querySelector('.main-pane');
+    if (pane && host) host.insertBefore(pane, host.firstChild);
+
+    // 悬浮按钮是 fixed 定位，挂在 body 下才不会随面板折叠一起隐藏
+    const float = tpl.content.querySelector('#gomokuFloat');
+    if (float) document.body.appendChild(float);
+  }
+
+  function setup() {
     lobbyEl = $('gomokuLobby');
     gameEl = $('gomokuGame');
     statusEl = $('gomokuStatus');
@@ -164,6 +191,8 @@
 
     setInterval(renderClock, 200);
     setMode('1v1');
+    // 用户在模板就绪前点过「五子棋」，此时补展开
+    if (pendingOpen) openPane();
     fetchState();
   }
 
@@ -171,10 +200,18 @@
 
   /** 展开左侧游戏面板（聊天始终保留在右侧） */
   function openPane() {
-    if (!paneEl) return;
+    // 面板模板还没加载完，先记下意图
+    if (!paneEl) {
+      pendingOpen = true;
+      return;
+    }
+    pendingOpen = false;
     paneCollapsed = false;
     paneEl.hidden = false;
     active = true;
+    // 面板互斥（另见 app.js 的 switchView）
+    if (window.ChatDropQA) window.ChatDropQA.collapsePane();
+    if (window.ChatDropBlindDate) window.ChatDropBlindDate.collapsePane();
     if (floatBtn) floatBtn.hidden = true;
     if (core.setActiveNav) core.setActiveNav('gomoku');
 
@@ -191,6 +228,7 @@
 
   /** 收起游戏面板：观战过程中也可以随时折叠 */
   function collapsePane() {
+    pendingOpen = false;
     paneCollapsed = true;
     active = false;
     if (paneEl) paneEl.hidden = true;
@@ -433,10 +471,6 @@
       opponentHint.textContent = picked.size === 1
         ? '已选择 1 位对手'
         : '选择 1 位对手';
-    } else if (mode === '1vN') {
-      opponentHint.textContent = picked.size >= 2
-        ? `已选择 ${picked.size} 位对手`
-        : '选择至少 2 位对手';
     } else {
       opponentHint.textContent = '无需指定对手';
     }
@@ -467,7 +501,7 @@
     return j;
   }
 
-  /** 发起对局：1v1/1vN 必须选够对手，NvN 无需指定对手 */
+  /** 发起对局：1v1 必须选择 1 位对手，NvN 无需指定对手 */
   async function createGame() {
     if (busy) return;
     if (game && (game.status === 'playing' || game.status === 'waiting')) {
@@ -478,10 +512,6 @@
     const opponents = [...picked];
     if (mode === '1v1' && opponents.length !== 1) {
       core.toast('请选择 1 位对手');
-      return;
-    }
-    if (mode === '1vN' && opponents.length < 2) {
-      core.toast('请选择至少 2 位对手');
       return;
     }
 

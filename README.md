@@ -274,9 +274,31 @@ curl -X POST http://localhost:8787/api/text \
 ```
 ChatDrop/
 ├── server.js                 零依赖 Node 服务（HTTP + SSE + 分片上传）
+├── extensions/               扩展目录（每个子目录一个可插拔模块）
+│   ├── gomoku/               五子棋扩展（逻辑 / 路由 / 前端 / 面板 / 样式）
+│   │   ├── index.js          扩展入口：声明挂载点，注入主服务能力
+│   │   ├── routes.js         HTTP 路由（/api/gomoku/*）
+│   │   ├── server.js         对局逻辑（工厂模块，注入广播与设备查询）
+│   │   ├── client.js         前端对局、观战与悔棋交互
+│   │   ├── panel.html        游戏面板片段（运行时注入到聊天左侧）
+│   │   └── style.css         五子棋布局与面板样式（需在主 style.css 之后引入）
+│   ├── technicalQA/          技术问答扩展（SQLite 存储，数据库在 data/technicalQA.db）
+│   │   ├── index.js          扩展入口：挂载 /qa，启动时打印全部问题与回答
+│   │   ├── db.js             SQLite 建表与问答读写（Node 内置 node:sqlite）
+│   │   ├── routes.js         HTTP 路由（/api/qa/*）
+│   │   ├── client.js         左侧问答面板交互（提问、回答、赞踩、分页）
+│   │   ├── panel.html        问答面板片段（运行时注入到聊天左侧）
+│   │   └── style.css         问答面板样式
+│   └── blindDate/           相亲扩展（共享表格，数据库在 data/blindDate.db）
+│       ├── index.js          扩展入口：挂载 /blinddate，启动时打印表头与行数
+│       ├── db.js             SQLite 建表与读写（表头与数据同表，首行为表头）
+│       ├── routes.js         HTTP 路由（/api/blinddate/*）
+│       ├── client.js         左侧共享表格交互（自动保存、新增/删除、实时同步）
+│       ├── panel.html        相亲面板片段（运行时注入到聊天左侧）
+│       └── style.css         相亲面板样式（表头 sticky 固定）
 ├── public/                   前端静态资源
 │   ├── index.html            界面结构
-│   ├── style.css             样式（深色优先，移动端适配）
+│   ├── style.css             全局样式（深色优先，移动端适配）
 │   ├── app.js                前端主逻辑
 │   ├── uploader.js           分片上传、暂停/继续、进度
 │   ├── pair.js               设备配对与二维码

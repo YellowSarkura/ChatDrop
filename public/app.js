@@ -936,20 +936,44 @@
   }
 
   /**
-   * 聊天永远在右侧；「五子棋」只是展开 / 收起左侧游戏面板，
-   * 不再整页切换视图。
+   * 聊天永远在右侧；「五子棋」「技术问答」「相亲」只是展开 / 收起左侧面板，
+   * 三个面板互斥，不整页切换视图。
    */
   function switchView(name) {
     closeSidebar();
     const gm = window.ChatDropGomoku;
+    const qa = window.ChatDropQA;
+    const bd = window.ChatDropBlindDate;
+
     if (name === 'gomoku') {
+      if (qa) qa.collapsePane();
+      if (bd) bd.collapsePane();
       if (gm) gm.openPane();
       else setActiveNav('gomoku');
-    } else {
-      if (gm) gm.collapsePane();
-      else setActiveNav('chat');
-      if (nearBottom()) scrollToBottom();
+      return;
     }
+
+    if (name === 'qa') {
+      if (gm) gm.collapsePane();
+      if (bd) bd.collapsePane();
+      if (qa) qa.openPane();
+      else setActiveNav('qa');
+      return;
+    }
+
+    if (name === 'blinddate') {
+      if (gm) gm.collapsePane();
+      if (qa) qa.collapsePane();
+      if (bd) bd.openPane();
+      else setActiveNav('blinddate');
+      return;
+    }
+
+    if (gm) gm.collapsePane();
+    if (qa) qa.collapsePane();
+    if (bd) bd.collapsePane();
+    if (!gm && !qa && !bd) setActiveNav('chat');
+    if (nearBottom()) scrollToBottom();
   }
 
   if (btnSidebarEl) btnSidebarEl.addEventListener('click', openSidebar);
@@ -967,6 +991,8 @@
   syncRecipientUI();
   updateSendState();
   if (window.ChatDropGomoku) window.ChatDropGomoku.init(window.ChatDrop);
+  if (window.ChatDropQA) window.ChatDropQA.init(window.ChatDrop);
+  if (window.ChatDropBlindDate) window.ChatDropBlindDate.init(window.ChatDrop);
   loadHistory().then(connect);
 
   /* ---------------- 扫码配对 ---------------- */
