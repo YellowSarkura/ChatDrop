@@ -1,10 +1,10 @@
 /* ==================================================================
-   相亲 —— 左侧共享表格样式
-   由 /blinddate/client.js 注入的面板使用；需在主 style.css 之后引入
-   表头（第一行）不可编辑，上下滚动时固定在顶部
+   共享表格 —— 左侧面板样式
+   由 /sharedsheet/client.js 注入的面板使用；需在主 style.css 之后引入
+   所有行都可编辑，没有固定的表头
    ================================================================== */
 
-.bd-pane {
+.ss-pane {
   flex: 0 0 min(100%, 1000px);
   min-width: 1000px;
   min-height: 0;
@@ -18,31 +18,31 @@
 /* 顶部                                                              */
 /* ---------------------------------------------------------------- */
 
-.bd-top {
+.ss-top {
   flex: 0 0 auto;
   padding: 12px 16px 10px;
   background: var(--bg-elev);
   border-bottom: 1px solid var(--line);
 }
 
-.bd-heading {
+.ss-heading {
   display: flex;
   align-items: center;
   gap: 9px;
 }
 
-.bd-heading h2 {
+.ss-heading h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 650;
 }
 
-.bd-count {
+.ss-count {
   font-size: 11px;
   color: var(--text-faint);
 }
 
-.bd-collapse {
+.ss-collapse {
   display: inline-flex;
   align-items: center;
   gap: 1px;
@@ -57,25 +57,72 @@
   cursor: pointer;
 }
 
-.bd-collapse svg {
+.ss-collapse svg {
   width: 14px;
   height: 14px;
 }
 
-.bd-collapse:hover {
+.ss-collapse:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.bd-toolbar {
+.ss-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   margin-top: 8px;
 }
 
-.bd-add,
-.bd-refresh {
+.ss-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  padding-bottom: 3px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+.ss-tab {
+  flex: 0 0 auto;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.ss-tab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ss-tab.active {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, .14);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.ss-tabs-empty {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.ss-new,
+.ss-del-sheet,
+.ss-refresh,
+.ss-add-row {
   padding: 5px 10px;
   border: 1px solid var(--line);
   border-radius: 9px;
@@ -86,22 +133,30 @@
   cursor: pointer;
 }
 
-.bd-add {
-  border-color: var(--accent);
-  color: var(--accent);
+
+.ss-del-sheet {
+  color: var(--danger);
 }
 
-.bd-add:hover,
-.bd-refresh:hover {
+.ss-new:hover,
+.ss-add-row:hover,
+.ss-refresh:hover {
   background: rgba(59, 130, 246, .12);
 }
 
-.bd-add:disabled {
+.ss-del-sheet:hover {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, .12);
+}
+
+.ss-new:disabled,
+.ss-add-row:disabled,
+.ss-del-sheet:disabled {
   opacity: .55;
   cursor: default;
 }
 
-.bd-status {
+.ss-status {
   margin-left: auto;
   font-size: 11.5px;
   color: var(--text-faint);
@@ -111,14 +166,14 @@
 /* 表格                                                              */
 /* ---------------------------------------------------------------- */
 
-.bd-scroll {
+.ss-scroll {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.bd-table {
+.ss-table {
   width: max-content;
   min-width: 100%;
   border-collapse: separate;
@@ -126,71 +181,40 @@
   font-size: 13px;
 }
 
-.bd-table th,
-.bd-table td {
+.ss-table td {
   padding: 0;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-}
-
-/* 表头：第一行固定，不参与编辑 */
-.bd-table th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  padding: 9px 10px;
-  background: var(--bg-elev);
-  color: var(--text-dim);
-  font-size: 12.5px;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
-  box-shadow: inset 0 -1px 0 var(--line);
-}
-
-.bd-table td {
   background: var(--bg);
 }
 
-.bd-table tbody tr:nth-child(even) td {
+.ss-table tbody tr:nth-child(even) td {
   background: var(--bg-elev);
 }
 
-/* 列宽：灌头与数据按列序对齐 */
-.bd-table th:nth-child(1),
-.bd-table td:nth-child(1) { width: 96px; }
+/* 列宽：7 个数据列 + 操作列 */
+.ss-table td:nth-child(1) { width: 110px; }
 
-.bd-table th:nth-child(2),
-.bd-table td:nth-child(2) { width: 80px; }
+.ss-table td:nth-child(2) { width: 88px; }
 
-.bd-table th:nth-child(3),
-.bd-table td:nth-child(3) { width: 80px; }
+.ss-table td:nth-child(3) { width: 88px; }
 
-.bd-table th:nth-child(4),
-.bd-table td:nth-child(4) { width: 120px; }
+.ss-table td:nth-child(4) { width: 130px; }
 
-.bd-table th:nth-child(5),
-.bd-table td:nth-child(5) { width: 160px; }
+.ss-table td:nth-child(5) { width: 170px; }
 
-.bd-table th:nth-child(6),
-.bd-table td:nth-child(6) { width: 140px; }
+.ss-table td:nth-child(6) { width: 150px; }
 
-.bd-table th:nth-child(7),
-.bd-table td:nth-child(7) { width: 170px; }
+.ss-table td:nth-child(7) { width: 180px; }
 
-.bd-table th:nth-child(8),
-.bd-table td:nth-child(8) { width: 72px; }
+.ss-table td:nth-child(8) { width: 72px; }
 
-.bd-op-head {
-  text-align: center !important;
-}
-
-.bd-op {
+.ss-op {
   text-align: center;
 }
 
 /* 单元格输入框 */
-.bd-cell {
+.ss-cell {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -205,21 +229,21 @@
   outline: none;
 }
 
-.bd-cell::placeholder {
+.ss-cell::placeholder {
   color: var(--text-faint);
 }
 
-.bd-cell:hover {
+.ss-cell:hover {
   border-color: var(--line);
 }
 
-.bd-cell:focus {
+.ss-cell:focus {
   border-color: var(--accent);
   background: var(--bg-input);
 }
 
 /* 行内删除按钮 */
-.bd-del {
+.ss-del {
   margin: 6px;
   padding: 4px 8px;
   border: 1px solid var(--line);
@@ -231,16 +255,16 @@
   cursor: pointer;
 }
 
-.bd-del:hover {
+.ss-del:hover {
   border-color: var(--danger);
   background: rgba(239, 68, 68, .12);
 }
 
-.bd-table tr.bd-saving td {
+.ss-table tr.ss-saving td {
   opacity: .65;
 }
 
-.bd-empty {
+.ss-empty {
   padding: 28px 16px;
   text-align: center;
   font-size: 12.5px;
@@ -256,7 +280,7 @@
     position: relative;
   }
 
-  .bd-pane {
+  .ss-pane {
     position: absolute;
     inset: 0;
     z-index: 45;
@@ -269,15 +293,15 @@
 }
 
 @media (max-width: 820px) {
-  .bd-top {
+  .ss-top {
     padding: 10px 14px 8px;
   }
 
-  .bd-toolbar {
+  .ss-toolbar {
     gap: 6px;
   }
 
-  .bd-status {
+  .ss-status {
     display: none;
   }
 }

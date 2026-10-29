@@ -1,0 +1,31 @@
+<!-- 共享表格面板片段：由 /sharedsheet/client.js 注入到 .main-pane 的最前面（左侧） -->
+<section class="ss-pane" id="sharedSheetPane" hidden>
+
+  <div class="ss-top">
+    <div class="ss-heading">
+      <h2>共享表格</h2>
+      <span class="ss-count" id="ssCount"></span>
+      <button class="ss-collapse" id="btnSsCollapse" type="button" title="收起共享表格">
+        收起
+        <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="ss-tabs" id="ssTabs"></div>
+
+    <div class="ss-toolbar">
+      <button class="ss-new" id="btnSsNewSheet" type="button">＋ 新建表格</button>
+      <button class="ss-del-sheet" id="btnSsDelSheet" type="button">删除表格</button>
+      <button class="ss-refresh" id="btnSsRefresh" type="button">刷新</button>
+      <button class="ss-add-row" id="btnSsAddRow" type="button">＋ 新增一行</button>
+      <span class="ss-status" id="ssStatus"></span>
+    </div>
+  </div>
+
+  <div class="ss-scroll" id="ssScroll">
+    <table class="ss-table">
+      <tbody id="ssBody"></tbody>
+    </table>
+    <div class="ss-empty" id="ssEmpty" hidden></div>
+  </div>
+</section>

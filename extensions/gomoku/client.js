@@ -211,7 +211,7 @@
     active = true;
     // 面板互斥（另见 app.js 的 switchView）
     if (window.ChatDropQA) window.ChatDropQA.collapsePane();
-    if (window.ChatDropBlindDate) window.ChatDropBlindDate.collapsePane();
+    if (window.ChatDropSharedSheet) window.ChatDropSharedSheet.collapsePane();
     if (floatBtn) floatBtn.hidden = true;
     if (core.setActiveNav) core.setActiveNav('gomoku');
 

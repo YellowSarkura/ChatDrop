@@ -91,9 +91,9 @@
       pendingOpen = true;
       return;
     }
-    // 与五子棋 / 相亲面板互斥（另见 app.js 的 switchView）
+    // 与五子棋 / 共享表格面板互斥（另见 app.js 的 switchView）
     if (window.ChatDropGomoku) window.ChatDropGomoku.collapsePane();
-    if (window.ChatDropBlindDate) window.ChatDropBlindDate.collapsePane();
+    if (window.ChatDropSharedSheet) window.ChatDropSharedSheet.collapsePane();
 
     pendingOpen = false;
     paneEl.hidden = false;

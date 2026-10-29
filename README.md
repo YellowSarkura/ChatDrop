@@ -289,13 +289,13 @@ ChatDrop/
 │   │   ├── client.js         左侧问答面板交互（提问、回答、赞踩、分页）
 │   │   ├── panel.html        问答面板片段（运行时注入到聊天左侧）
 │   │   └── style.css         问答面板样式
-│   └── blindDate/           相亲扩展（共享表格，数据库在 data/blindDate.db）
-│       ├── index.js          扩展入口：挂载 /blinddate，启动时打印表头与行数
-│       ├── db.js             SQLite 建表与读写（表头与数据同表，首行为表头）
-│       ├── routes.js         HTTP 路由（/api/blinddate/*）
-│       ├── client.js         左侧共享表格交互（自动保存、新增/删除、实时同步）
-│       ├── panel.html        相亲面板片段（运行时注入到聊天左侧）
-│       └── style.css         相亲面板样式（表头 sticky 固定）
+│   └── sharedSheet/          共享表格扩展（数据库在 data/sharedsheet.db）
+│       ├── index.js          扩展入口：挂载 /sharedsheet，启动时打印总表
+│       ├── db.js             总表 shared_sheets(table_id, table_name) + 各表格数据表
+│       ├── routes.js         HTTP 路由（/api/sharedsheet/*，表用 A1、A2… 作 ID）
+│       ├── client.js         左侧面板交互（建表/删表、自动保存、实时同步）
+│       ├── panel.html        共享表格面板片段（运行时注入到聊天左侧）
+│       └── style.css         共享表格面板样式
 ├── public/                   前端静态资源
 │   ├── index.html            界面结构
 │   ├── style.css             全局样式（深色优先，移动端适配）

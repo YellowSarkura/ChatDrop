@@ -227,7 +227,7 @@ setInterval(() => {
 const EXTENSION_DEFS = [
   require('./extensions/gomoku'),
   require('./extensions/technicalQA'),
-  require('./extensions/blindDate'),
+  require('./extensions/sharedSheet'),
 ];
 
 // 注入主服务通用能力；扩展内部不直接访问设备表 / SSE 连接

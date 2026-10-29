@@ -936,18 +936,18 @@
   }
 
   /**
-   * 聊天永远在右侧；「五子棋」「技术问答」「相亲」只是展开 / 收起左侧面板，
+   * 聊天永远在右侧；「五子棋」「技术问答」「共享表格」只是展开 / 收起左侧面板，
    * 三个面板互斥，不整页切换视图。
    */
   function switchView(name) {
     closeSidebar();
     const gm = window.ChatDropGomoku;
     const qa = window.ChatDropQA;
-    const bd = window.ChatDropBlindDate;
+    const ss = window.ChatDropSharedSheet;
 
     if (name === 'gomoku') {
       if (qa) qa.collapsePane();
-      if (bd) bd.collapsePane();
+      if (ss) ss.collapsePane();
       if (gm) gm.openPane();
       else setActiveNav('gomoku');
       return;
@@ -955,24 +955,24 @@
 
     if (name === 'qa') {
       if (gm) gm.collapsePane();
-      if (bd) bd.collapsePane();
+      if (ss) ss.collapsePane();
       if (qa) qa.openPane();
       else setActiveNav('qa');
       return;
     }
 
-    if (name === 'blinddate') {
+    if (name === 'sharedsheet') {
       if (gm) gm.collapsePane();
       if (qa) qa.collapsePane();
-      if (bd) bd.openPane();
-      else setActiveNav('blinddate');
+      if (ss) ss.openPane();
+      else setActiveNav('sharedsheet');
       return;
     }
 
     if (gm) gm.collapsePane();
     if (qa) qa.collapsePane();
-    if (bd) bd.collapsePane();
-    if (!gm && !qa && !bd) setActiveNav('chat');
+    if (ss) ss.collapsePane();
+    if (!gm && !qa && !ss) setActiveNav('chat');
     if (nearBottom()) scrollToBottom();
   }
 
@@ -992,7 +992,7 @@
   updateSendState();
   if (window.ChatDropGomoku) window.ChatDropGomoku.init(window.ChatDrop);
   if (window.ChatDropQA) window.ChatDropQA.init(window.ChatDrop);
-  if (window.ChatDropBlindDate) window.ChatDropBlindDate.init(window.ChatDrop);
+  if (window.ChatDropSharedSheet) window.ChatDropSharedSheet.init(window.ChatDrop);
   loadHistory().then(connect);
 
   /* ---------------- 扫码配对 ---------------- */
